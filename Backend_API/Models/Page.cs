@@ -6,7 +6,7 @@ namespace Backend_API.Models
     public class Page
     {
         public Guid Id { get; set; } = Guid.NewGuid();
-
+        public string Slug { get; set; } = string.Empty;
         public PageCategory Category { get; set; }
         public string Name { get; set; } = string.Empty;
         public string? Bio { get; set; }
@@ -27,6 +27,9 @@ namespace Backend_API.Models
 
         public Guid CreatedByUserId { get; set; }
         public User? CreatedByUser { get; set; }
+        public Guid? LastUpdatedByUserId { get; set; }
+        public User? LastUpdatedByUser { get; set; }
+
 
         public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
         public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;

@@ -5,6 +5,7 @@ namespace Backend_API.Models
     public class SupportTicket
     {
         public Guid Id { get; set; } = Guid.NewGuid();
+        public int TicketNumber { get; set; }
 
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
@@ -20,6 +21,11 @@ namespace Backend_API.Models
 
         public Guid? CreatedByPageId { get; set; }
         public Page? CreatedByPage { get; set; }
+
+        public Guid? LastUpdatedByUserId { get; set; }
+        public User? LastUpdatedByUser { get; set; }
+        public Guid? LastUpdatedByPageId { get; set; }
+        public Page? LastUpdatedByPage { get; set; }
 
         public Guid? AssigneeId { get; set; }
         public User? Assignee { get; set; }

@@ -6,6 +6,7 @@ namespace Backend_API.Models
     public class Release
     {
         public Guid Id { get; set; } = Guid.NewGuid();
+        public int PublicId { get; set; }
 
         public Guid MasterReleaseId { get; set; }
         public MasterRelease? MasterRelease { get; set; }
@@ -45,6 +46,11 @@ namespace Backend_API.Models
 
         public Guid? CreatedByPageId { get; set; }
         public Page? CreatedByPage { get; set; }
+
+        public Guid? LastUpdatedByUserId { get; set; }
+        public User? LastUpdatedByUser { get; set; }
+        public Guid? LastUpdatedByPageId { get; set; }
+        public Page? LastUpdatedByPage { get; set; }
 
         public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
         public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;

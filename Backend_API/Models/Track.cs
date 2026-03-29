@@ -5,6 +5,7 @@ namespace Backend_API.Models
     public class Track
     {
         public Guid Id { get; set; } = Guid.NewGuid();
+        public int PublicId { get; set; }
 
         public Guid ReleaseId { get; set; }
         public Release? Release { get; set; }
