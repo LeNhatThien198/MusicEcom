@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Backend_API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260319200304_InitialCreate")]
+    [Migration("20260328112002_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -20,7 +20,7 @@ namespace Backend_API.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.24")
+                .HasAnnotation("ProductVersion", "8.0.25")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -276,6 +276,9 @@ namespace Backend_API.Migrations
                         .HasColumnType("datetimeoffset")
                         .HasDefaultValueSql("SYSDATETIMEOFFSET()");
 
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTimeOffset?>("DeletedAt")
                         .HasColumnType("datetimeoffset");
 
@@ -283,6 +286,9 @@ namespace Backend_API.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
+
+                    b.Property<Guid?>("LastUpdatedByUserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("MediaCondition")
                         .ValueGeneratedOnAdd()
@@ -294,6 +300,12 @@ namespace Backend_API.Migrations
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("PublicId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PublicId"), 10000L);
 
                     b.Property<Guid>("ReleaseId")
                         .HasColumnType("uniqueidentifier");
@@ -328,7 +340,14 @@ namespace Backend_API.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CreatedByUserId");
+
                     b.HasIndex("DeletedAt");
+
+                    b.HasIndex("LastUpdatedByUserId");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
 
                     b.HasIndex("ReleaseId");
 
@@ -449,10 +468,22 @@ namespace Backend_API.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
 
+                    b.Property<Guid?>("LastUpdatedByPageId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("LastUpdatedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<float>("ListingRating")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("real")
                         .HasDefaultValue(0f);
+
+                    b.Property<int>("PublicId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PublicId"));
 
                     b.Property<int>("ReleaseYear")
                         .HasColumnType("int");
@@ -489,6 +520,13 @@ namespace Backend_API.Migrations
                     b.HasIndex("CreatedByUserId");
 
                     b.HasIndex("DeletedAt");
+
+                    b.HasIndex("LastUpdatedByPageId");
+
+                    b.HasIndex("LastUpdatedByUserId");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
 
                     b.ToTable("MasterReleases");
                 });
@@ -618,15 +656,28 @@ namespace Backend_API.Migrations
                         .HasColumnType("datetimeoffset")
                         .HasDefaultValueSql("SYSDATETIMEOFFSET()");
 
+                    b.Property<Guid?>("LastUpdatedByPageId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("LastUpdatedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("OrderCode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<int>("PaymentMethod")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasDefaultValue(0);
 
+                    b.Property<string>("PaymentSessionId")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
                     b.Property<int>("PaymentStatus")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(1);
+                        .HasColumnType("int");
 
                     b.Property<Guid?>("SellerPageId")
                         .HasColumnType("uniqueidentifier");
@@ -655,9 +706,7 @@ namespace Backend_API.Migrations
                         .HasColumnType("nvarchar(20)");
 
                     b.Property<int>("Status")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(1);
+                        .HasColumnType("int");
 
                     b.Property<decimal>("TotalAmount")
                         .HasColumnType("decimal(18,2)");
@@ -674,6 +723,13 @@ namespace Backend_API.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("BuyerUserId");
+
+                    b.HasIndex("LastUpdatedByPageId");
+
+                    b.HasIndex("LastUpdatedByUserId");
+
+                    b.HasIndex("OrderCode")
+                        .IsUnique();
 
                     b.HasIndex("SellerPageId");
 
@@ -822,6 +878,9 @@ namespace Backend_API.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
 
+                    b.Property<Guid?>("LastUpdatedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -834,6 +893,11 @@ namespace Backend_API.Migrations
 
                     b.Property<string>("SellerTerms")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<int>("Status")
                         .ValueGeneratedOnAdd()
@@ -860,6 +924,11 @@ namespace Backend_API.Migrations
 
                     b.HasIndex("DeletedAt");
 
+                    b.HasIndex("LastUpdatedByUserId");
+
+                    b.HasIndex("Slug")
+                        .IsUnique();
+
                     b.ToTable("Pages");
                 });
 
@@ -882,6 +951,9 @@ namespace Backend_API.Migrations
                     b.Property<Guid>("CreatedByPageId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("CreatedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int>("CurrentUses")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
@@ -899,9 +971,7 @@ namespace Backend_API.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("Status")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(1);
+                        .HasColumnType("int");
 
                     b.Property<Guid?>("TrackId")
                         .HasColumnType("uniqueidentifier");
@@ -912,6 +982,8 @@ namespace Backend_API.Migrations
                         .IsUnique();
 
                     b.HasIndex("CreatedByPageId");
+
+                    b.HasIndex("CreatedByUserId");
 
                     b.HasIndex("ReleaseId");
 
@@ -1192,6 +1264,12 @@ namespace Backend_API.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(false);
 
+                    b.Property<Guid?>("LastUpdatedByPageId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("LastUpdatedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<float>("ListingRating")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("real")
@@ -1208,6 +1286,12 @@ namespace Backend_API.Migrations
 
                     b.Property<decimal?>("Price")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("PublicId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PublicId"));
 
                     b.Property<DateTime?>("ReleaseDate")
                         .HasColumnType("datetime2");
@@ -1253,9 +1337,16 @@ namespace Backend_API.Migrations
 
                     b.HasIndex("DeletedAt");
 
+                    b.HasIndex("LastUpdatedByPageId");
+
+                    b.HasIndex("LastUpdatedByUserId");
+
                     b.HasIndex("MasterReleaseId");
 
                     b.HasIndex("OwnedByPageId");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
 
                     b.ToTable("Releases");
                 });
@@ -1366,9 +1457,14 @@ namespace Backend_API.Migrations
                     b.Property<Guid>("ReleaseId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int>("SortOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(0);
+
                     b.HasKey("Id");
 
-                    b.HasIndex("ReleaseId");
+                    b.HasIndex("ReleaseId", "SortOrder");
 
                     b.ToTable("ReleaseImages");
                 });
@@ -1435,10 +1531,14 @@ namespace Backend_API.Migrations
                         .HasMaxLength(4000)
                         .HasColumnType("nvarchar(4000)");
 
+                    b.Property<Guid?>("LastUpdatedByPageId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("LastUpdatedByUserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int>("Status")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(1);
+                        .HasColumnType("int");
 
                     b.Property<Guid?>("TargetEntityId")
                         .HasColumnType("uniqueidentifier");
@@ -1446,6 +1546,12 @@ namespace Backend_API.Migrations
                     b.Property<string>("TargetEntityType")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("TicketNumber")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TicketNumber"), 1000L);
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -1465,7 +1571,14 @@ namespace Backend_API.Migrations
 
                     b.HasIndex("CreatedByUserId");
 
+                    b.HasIndex("LastUpdatedByPageId");
+
+                    b.HasIndex("LastUpdatedByUserId");
+
                     b.HasIndex("Status");
+
+                    b.HasIndex("TicketNumber")
+                        .IsUnique();
 
                     b.HasIndex("TargetEntityType", "TargetEntityId");
 
@@ -1587,6 +1700,12 @@ namespace Backend_API.Migrations
                     b.Property<decimal?>("Price")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<int>("PublicId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PublicId"));
+
                     b.Property<Guid>("ReleaseId")
                         .HasColumnType("uniqueidentifier");
 
@@ -1605,6 +1724,9 @@ namespace Backend_API.Migrations
                     b.HasIndex("DeletedAt");
 
                     b.HasIndex("MasterTrackId");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
 
                     b.HasIndex("ReleaseId");
 
@@ -1906,6 +2028,17 @@ namespace Backend_API.Migrations
 
             modelBuilder.Entity("Backend_API.Models.Listing", b =>
                 {
+                    b.HasOne("Backend_API.Models.User", "CreatedByUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Backend_API.Models.User", "LastUpdatedByUser")
+                        .WithMany()
+                        .HasForeignKey("LastUpdatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("Backend_API.Models.Release", "Release")
                         .WithMany("Listings")
                         .HasForeignKey("ReleaseId")
@@ -1917,6 +2050,10 @@ namespace Backend_API.Migrations
                         .HasForeignKey("SellerId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("CreatedByUser");
+
+                    b.Navigation("LastUpdatedByUser");
 
                     b.Navigation("Release");
 
@@ -1958,15 +2095,29 @@ namespace Backend_API.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("Backend_API.Models.Page", "LastUpdatedByPage")
+                        .WithMany()
+                        .HasForeignKey("LastUpdatedByPageId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Backend_API.Models.User", "LastUpdatedByUser")
+                        .WithMany()
+                        .HasForeignKey("LastUpdatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("CreatedByPage");
 
                     b.Navigation("CreatedByUser");
+
+                    b.Navigation("LastUpdatedByPage");
+
+                    b.Navigation("LastUpdatedByUser");
                 });
 
             modelBuilder.Entity("Backend_API.Models.MasterTrack", b =>
                 {
                     b.HasOne("Backend_API.Models.MasterRelease", "MasterRelease")
-                        .WithMany("Tracks")
+                        .WithMany("MasterTracks")
                         .HasForeignKey("MasterReleaseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1999,6 +2150,16 @@ namespace Backend_API.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("Backend_API.Models.Page", "LastUpdatedByPage")
+                        .WithMany()
+                        .HasForeignKey("LastUpdatedByPageId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Backend_API.Models.User", "LastUpdatedByUser")
+                        .WithMany()
+                        .HasForeignKey("LastUpdatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("Backend_API.Models.Page", "SellerPage")
                         .WithMany()
                         .HasForeignKey("SellerPageId")
@@ -2010,6 +2171,10 @@ namespace Backend_API.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("BuyerUser");
+
+                    b.Navigation("LastUpdatedByPage");
+
+                    b.Navigation("LastUpdatedByUser");
 
                     b.Navigation("SellerPage");
 
@@ -2082,7 +2247,14 @@ namespace Backend_API.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("Backend_API.Models.User", "LastUpdatedByUser")
+                        .WithMany()
+                        .HasForeignKey("LastUpdatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("CreatedByUser");
+
+                    b.Navigation("LastUpdatedByUser");
                 });
 
             modelBuilder.Entity("Backend_API.Models.RedemptionCode", b =>
@@ -2090,6 +2262,12 @@ namespace Backend_API.Migrations
                     b.HasOne("Backend_API.Models.Page", "CreatedByPage")
                         .WithMany("RedemptionCodes")
                         .HasForeignKey("CreatedByPageId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Backend_API.Models.User", "CreatedByUser")
+                        .WithMany()
+                        .HasForeignKey("CreatedByUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -2104,6 +2282,8 @@ namespace Backend_API.Migrations
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("CreatedByPage");
+
+                    b.Navigation("CreatedByUser");
 
                     b.Navigation("Release");
 
@@ -2332,6 +2512,16 @@ namespace Backend_API.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("Backend_API.Models.Page", "LastUpdatedByPage")
+                        .WithMany()
+                        .HasForeignKey("LastUpdatedByPageId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Backend_API.Models.User", "LastUpdatedByUser")
+                        .WithMany()
+                        .HasForeignKey("LastUpdatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("Backend_API.Models.MasterRelease", "MasterRelease")
                         .WithMany("Releases")
                         .HasForeignKey("MasterReleaseId")
@@ -2346,6 +2536,10 @@ namespace Backend_API.Migrations
                     b.Navigation("CreatedByPage");
 
                     b.Navigation("CreatedByUser");
+
+                    b.Navigation("LastUpdatedByPage");
+
+                    b.Navigation("LastUpdatedByUser");
 
                     b.Navigation("MasterRelease");
 
@@ -2425,11 +2619,25 @@ namespace Backend_API.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("Backend_API.Models.Page", "LastUpdatedByPage")
+                        .WithMany()
+                        .HasForeignKey("LastUpdatedByPageId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Backend_API.Models.User", "LastUpdatedByUser")
+                        .WithMany()
+                        .HasForeignKey("LastUpdatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("Assignee");
 
                     b.Navigation("CreatedByPage");
 
                     b.Navigation("CreatedByUser");
+
+                    b.Navigation("LastUpdatedByPage");
+
+                    b.Navigation("LastUpdatedByUser");
                 });
 
             modelBuilder.Entity("Backend_API.Models.SystemSetting", b =>
@@ -2459,7 +2667,7 @@ namespace Backend_API.Migrations
                     b.HasOne("Backend_API.Models.SupportTicket", "SupportTicket")
                         .WithMany("Messages")
                         .HasForeignKey("SupportTicketId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Sender");
@@ -2582,11 +2790,11 @@ namespace Backend_API.Migrations
 
                     b.Navigation("Labels");
 
+                    b.Navigation("MasterTracks");
+
                     b.Navigation("Releases");
 
                     b.Navigation("Styles");
-
-                    b.Navigation("Tracks");
                 });
 
             modelBuilder.Entity("Backend_API.Models.MasterTrack", b =>

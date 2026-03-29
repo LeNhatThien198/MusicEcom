@@ -122,6 +122,7 @@ namespace Backend_API.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Slug = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     Category = table.Column<int>(type: "int", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
                     Bio = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -136,6 +137,7 @@ namespace Backend_API.Migrations
                     Status = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
                     TotalReleaseComments = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
                     CreatedByUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    LastUpdatedByUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, defaultValueSql: "SYSDATETIMEOFFSET()"),
                     UpdatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, defaultValueSql: "SYSDATETIMEOFFSET()"),
                     DeletedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
@@ -146,6 +148,12 @@ namespace Backend_API.Migrations
                     table.ForeignKey(
                         name: "FK_Pages_Users_CreatedByUserId",
                         column: x => x.CreatedByUserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Pages_Users_LastUpdatedByUserId",
+                        column: x => x.LastUpdatedByUserId,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -216,6 +224,8 @@ namespace Backend_API.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    PublicId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     Title = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     Category = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
                     Status = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
@@ -229,6 +239,8 @@ namespace Backend_API.Migrations
                     TotalListingReviews = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
                     CreatedByUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedByPageId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    LastUpdatedByUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    LastUpdatedByPageId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, defaultValueSql: "SYSDATETIMEOFFSET()"),
                     UpdatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, defaultValueSql: "SYSDATETIMEOFFSET()"),
                     DeletedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
@@ -243,8 +255,20 @@ namespace Backend_API.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
+                        name: "FK_MasterReleases_Pages_LastUpdatedByPageId",
+                        column: x => x.LastUpdatedByPageId,
+                        principalTable: "Pages",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
                         name: "FK_MasterReleases_Users_CreatedByUserId",
                         column: x => x.CreatedByUserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_MasterReleases_Users_LastUpdatedByUserId",
+                        column: x => x.LastUpdatedByUserId,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -287,6 +311,8 @@ namespace Backend_API.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    OrderCode = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    PaymentSessionId = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
                     BuyerUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     SellerUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     SellerPageId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
@@ -299,9 +325,11 @@ namespace Backend_API.Migrations
                     ShippingFee = table.Column<decimal>(type: "decimal(18,2)", nullable: false, defaultValue: 0m),
                     TrackingCode = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     TotalAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false, defaultValue: 1),
-                    PaymentStatus = table.Column<int>(type: "int", nullable: false, defaultValue: 1),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    PaymentStatus = table.Column<int>(type: "int", nullable: false),
                     PaymentMethod = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
+                    LastUpdatedByUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    LastUpdatedByPageId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, defaultValueSql: "SYSDATETIMEOFFSET()"),
                     UpdatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, defaultValueSql: "SYSDATETIMEOFFSET()")
                 },
@@ -309,6 +337,12 @@ namespace Backend_API.Migrations
                 {
                     table.PrimaryKey("PK_Orders", x => x.Id);
                     table.CheckConstraint("CK_Order_SellerType", "([SellerUserId] IS NOT NULL AND [SellerPageId] IS NULL) OR ([SellerUserId] IS NULL AND [SellerPageId] IS NOT NULL)");
+                    table.ForeignKey(
+                        name: "FK_Orders_Pages_LastUpdatedByPageId",
+                        column: x => x.LastUpdatedByPageId,
+                        principalTable: "Pages",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Orders_Pages_SellerPageId",
                         column: x => x.SellerPageId,
@@ -318,6 +352,12 @@ namespace Backend_API.Migrations
                     table.ForeignKey(
                         name: "FK_Orders_Users_BuyerUserId",
                         column: x => x.BuyerUserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Orders_Users_LastUpdatedByUserId",
+                        column: x => x.LastUpdatedByUserId,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -360,14 +400,18 @@ namespace Backend_API.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TicketNumber = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1000, 1"),
                     Title = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     Description = table.Column<string>(type: "nvarchar(4000)", maxLength: 4000, nullable: false),
                     Category = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
-                    Status = table.Column<int>(type: "int", nullable: false, defaultValue: 1),
+                    Status = table.Column<int>(type: "int", nullable: false),
                     TargetEntityType = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     TargetEntityId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedByUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedByPageId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    LastUpdatedByUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    LastUpdatedByPageId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     AssigneeId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, defaultValueSql: "SYSDATETIMEOFFSET()"),
                     UpdatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, defaultValueSql: "SYSDATETIMEOFFSET()")
@@ -382,6 +426,12 @@ namespace Backend_API.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
+                        name: "FK_SupportTickets_Pages_LastUpdatedByPageId",
+                        column: x => x.LastUpdatedByPageId,
+                        principalTable: "Pages",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
                         name: "FK_SupportTickets_Users_AssigneeId",
                         column: x => x.AssigneeId,
                         principalTable: "Users",
@@ -390,6 +440,12 @@ namespace Backend_API.Migrations
                     table.ForeignKey(
                         name: "FK_SupportTickets_Users_CreatedByUserId",
                         column: x => x.CreatedByUserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_SupportTickets_Users_LastUpdatedByUserId",
+                        column: x => x.LastUpdatedByUserId,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -522,6 +578,8 @@ namespace Backend_API.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    PublicId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     MasterReleaseId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Title = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     Edition = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
@@ -546,6 +604,8 @@ namespace Backend_API.Migrations
                     TotalListingReviews = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
                     CreatedByUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedByPageId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    LastUpdatedByUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    LastUpdatedByPageId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, defaultValueSql: "SYSDATETIMEOFFSET()"),
                     UpdatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, defaultValueSql: "SYSDATETIMEOFFSET()"),
                     DeletedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
@@ -566,6 +626,12 @@ namespace Backend_API.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
+                        name: "FK_Releases_Pages_LastUpdatedByPageId",
+                        column: x => x.LastUpdatedByPageId,
+                        principalTable: "Pages",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
                         name: "FK_Releases_Pages_OwnedByPageId",
                         column: x => x.OwnedByPageId,
                         principalTable: "Pages",
@@ -574,6 +640,12 @@ namespace Backend_API.Migrations
                     table.ForeignKey(
                         name: "FK_Releases_Users_CreatedByUserId",
                         column: x => x.CreatedByUserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Releases_Users_LastUpdatedByUserId",
+                        column: x => x.LastUpdatedByUserId,
                         principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -642,7 +714,7 @@ namespace Backend_API.Migrations
                         column: x => x.SupportTicketId,
                         principalTable: "SupportTickets",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_TicketMessages_Users_SenderId",
                         column: x => x.SenderId,
@@ -681,6 +753,8 @@ namespace Backend_API.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    PublicId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "10000, 1"),
                     ReleaseId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Title = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     MediaCondition = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
@@ -692,6 +766,8 @@ namespace Backend_API.Migrations
                     IsSensitive = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
                     Status = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
                     SellerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    CreatedByUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    LastUpdatedByUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, defaultValueSql: "SYSDATETIMEOFFSET()"),
                     UpdatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, defaultValueSql: "SYSDATETIMEOFFSET()"),
                     DeletedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
@@ -703,6 +779,18 @@ namespace Backend_API.Migrations
                         name: "FK_Listings_Releases_ReleaseId",
                         column: x => x.ReleaseId,
                         principalTable: "Releases",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Listings_Users_CreatedByUserId",
+                        column: x => x.CreatedByUserId,
+                        principalTable: "Users",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Listings_Users_LastUpdatedByUserId",
+                        column: x => x.LastUpdatedByUserId,
+                        principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
@@ -833,6 +921,7 @@ namespace Backend_API.Migrations
                     ReleaseId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ImageUrl = table.Column<string>(type: "nvarchar(2048)", maxLength: 2048, nullable: false),
                     Category = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
+                    SortOrder = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
                     CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, defaultValueSql: "SYSDATETIMEOFFSET()")
                 },
                 constraints: table =>
@@ -900,6 +989,8 @@ namespace Backend_API.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    PublicId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     ReleaseId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     MasterTrackId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Title = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
@@ -1122,12 +1213,13 @@ namespace Backend_API.Migrations
                     Code = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     ReleaseId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     TrackId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    Status = table.Column<int>(type: "int", nullable: false, defaultValue: 1),
+                    Status = table.Column<int>(type: "int", nullable: false),
                     MaxUses = table.Column<int>(type: "int", nullable: false, defaultValue: 1),
                     CurrentUses = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
-                    ExpiresAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true),
+                    CreatedByUserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedByPageId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, defaultValueSql: "SYSDATETIMEOFFSET()")
+                    CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false, defaultValueSql: "SYSDATETIMEOFFSET()"),
+                    ExpiresAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -1149,6 +1241,12 @@ namespace Backend_API.Migrations
                         name: "FK_RedemptionCodes_Tracks_TrackId",
                         column: x => x.TrackId,
                         principalTable: "Tracks",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_RedemptionCodes_Users_CreatedByUserId",
+                        column: x => x.CreatedByUserId,
+                        principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                 });
@@ -1266,9 +1364,25 @@ namespace Backend_API.Migrations
                 column: "ListingId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Listings_CreatedByUserId",
+                table: "Listings",
+                column: "CreatedByUserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Listings_DeletedAt",
                 table: "Listings",
                 column: "DeletedAt");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Listings_LastUpdatedByUserId",
+                table: "Listings",
+                column: "LastUpdatedByUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Listings_PublicId",
+                table: "Listings",
+                column: "PublicId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Listings_ReleaseId",
@@ -1309,6 +1423,22 @@ namespace Backend_API.Migrations
                 name: "IX_MasterReleases_DeletedAt",
                 table: "MasterReleases",
                 column: "DeletedAt");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MasterReleases_LastUpdatedByPageId",
+                table: "MasterReleases",
+                column: "LastUpdatedByPageId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MasterReleases_LastUpdatedByUserId",
+                table: "MasterReleases",
+                column: "LastUpdatedByUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MasterReleases_PublicId",
+                table: "MasterReleases",
+                column: "PublicId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_MasterReleaseStyles_StyleId",
@@ -1378,6 +1508,22 @@ namespace Backend_API.Migrations
                 column: "BuyerUserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Orders_LastUpdatedByPageId",
+                table: "Orders",
+                column: "LastUpdatedByPageId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Orders_LastUpdatedByUserId",
+                table: "Orders",
+                column: "LastUpdatedByUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Orders_OrderCode",
+                table: "Orders",
+                column: "OrderCode",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Orders_SellerPageId",
                 table: "Orders",
                 column: "SellerPageId");
@@ -1398,6 +1544,17 @@ namespace Backend_API.Migrations
                 column: "DeletedAt");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Pages_LastUpdatedByUserId",
+                table: "Pages",
+                column: "LastUpdatedByUserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Pages_Slug",
+                table: "Pages",
+                column: "Slug",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_PageUserRoles_UserId",
                 table: "PageUserRoles",
                 column: "UserId");
@@ -1412,6 +1569,11 @@ namespace Backend_API.Migrations
                 name: "IX_RedemptionCodes_CreatedByPageId",
                 table: "RedemptionCodes",
                 column: "CreatedByPageId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RedemptionCodes_CreatedByUserId",
+                table: "RedemptionCodes",
+                column: "CreatedByUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RedemptionCodes_ReleaseId",
@@ -1459,9 +1621,9 @@ namespace Backend_API.Migrations
                 column: "ReleaseId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ReleaseImages_ReleaseId",
+                name: "IX_ReleaseImages_ReleaseId_SortOrder",
                 table: "ReleaseImages",
-                column: "ReleaseId");
+                columns: new[] { "ReleaseId", "SortOrder" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_ReleaseLabels_LabelPageId",
@@ -1484,6 +1646,16 @@ namespace Backend_API.Migrations
                 column: "DeletedAt");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Releases_LastUpdatedByPageId",
+                table: "Releases",
+                column: "LastUpdatedByPageId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Releases_LastUpdatedByUserId",
+                table: "Releases",
+                column: "LastUpdatedByUserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Releases_MasterReleaseId",
                 table: "Releases",
                 column: "MasterReleaseId");
@@ -1492,6 +1664,12 @@ namespace Backend_API.Migrations
                 name: "IX_Releases_OwnedByPageId",
                 table: "Releases",
                 column: "OwnedByPageId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Releases_PublicId",
+                table: "Releases",
+                column: "PublicId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_ReleaseStyles_StyleId",
@@ -1520,6 +1698,16 @@ namespace Backend_API.Migrations
                 column: "CreatedByUserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_SupportTickets_LastUpdatedByPageId",
+                table: "SupportTickets",
+                column: "LastUpdatedByPageId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SupportTickets_LastUpdatedByUserId",
+                table: "SupportTickets",
+                column: "LastUpdatedByUserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_SupportTickets_Status",
                 table: "SupportTickets",
                 column: "Status");
@@ -1528,6 +1716,12 @@ namespace Backend_API.Migrations
                 name: "IX_SupportTickets_TargetEntityType_TargetEntityId",
                 table: "SupportTickets",
                 columns: new[] { "TargetEntityType", "TargetEntityId" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SupportTickets_TicketNumber",
+                table: "SupportTickets",
+                column: "TicketNumber",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_SystemSettings_LastUpdatedByUserId",
@@ -1563,6 +1757,12 @@ namespace Backend_API.Migrations
                 name: "IX_Tracks_MasterTrackId",
                 table: "Tracks",
                 column: "MasterTrackId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Tracks_PublicId",
+                table: "Tracks",
+                column: "PublicId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Tracks_ReleaseId",

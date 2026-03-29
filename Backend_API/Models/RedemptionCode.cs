@@ -19,11 +19,12 @@ namespace Backend_API.Models
         public int MaxUses { get; set; } = 1;
         public int CurrentUses { get; set; } = 0;
 
-        public DateTimeOffset? ExpiresAt { get; set; }
-
+        public Guid CreatedByUserId { get; set; }
+        public User? CreatedByUser { get; set; }
         public Guid CreatedByPageId { get; set; }
         public Page? CreatedByPage { get; set; }
 
         public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
+        public DateTimeOffset? ExpiresAt { get; set; }
     }
 }

@@ -5,7 +5,8 @@ namespace Backend_API.Models
     public class Order
     {
         public Guid Id { get; set; } = Guid.NewGuid();
-
+        public string OrderCode { get; set; } = string.Empty;
+        public string? PaymentSessionId { get; set; }
         public Guid BuyerUserId { get; set; }
         public User? BuyerUser { get; set; }
 
@@ -31,6 +32,12 @@ namespace Backend_API.Models
         public OrderStatus Status { get; set; } = OrderStatus.Pending;
         public PaymentStatus PaymentStatus { get; set; } = PaymentStatus.Unpaid;
         public PaymentMethod PaymentMethod { get; set; } = PaymentMethod.None;
+
+        public Guid? LastUpdatedByUserId { get; set; }
+        public User? LastUpdatedByUser { get; set; }
+        public Guid? LastUpdatedByPageId { get; set; }
+        public Page? LastUpdatedByPage { get; set; }
+
 
         public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
         public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;

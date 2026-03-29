@@ -6,6 +6,7 @@ namespace Backend_API.Models
     public class MasterRelease
     {
         public Guid Id { get; set; } = Guid.NewGuid();
+        public int PublicId { get; set; }
 
         public string Title { get; set; } = string.Empty;
         public ReleaseCategory Category { get; set; } = ReleaseCategory.Album;
@@ -29,6 +30,11 @@ namespace Backend_API.Models
         public Guid? CreatedByPageId { get; set; }
         public Page? CreatedByPage { get; set; }
 
+        public Guid? LastUpdatedByUserId { get; set; }
+        public User? LastUpdatedByUser { get; set; }
+        public Guid? LastUpdatedByPageId { get; set; }
+        public Page? LastUpdatedByPage { get; set; }
+
         public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
         public DateTimeOffset UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
         public DateTimeOffset? DeletedAt { get; set; }
@@ -39,6 +45,6 @@ namespace Backend_API.Models
         public ICollection<MasterReleaseArtist> Artists { get; set; } = new List<MasterReleaseArtist>();
         public ICollection<MasterReleaseLabel> Labels { get; set; } = new List<MasterReleaseLabel>();
         public ICollection<Release> Releases { get; set; } = new List<Release>();
-        public ICollection<MasterTrack> Tracks { get; set; } = new List<MasterTrack>();
+        public ICollection<MasterTrack> MasterTracks { get; set; } = new List<MasterTrack>();
     }
 }

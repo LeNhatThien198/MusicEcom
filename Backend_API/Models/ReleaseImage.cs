@@ -12,6 +12,8 @@ namespace Backend_API.Models
         public string ImageUrl { get; set; } = string.Empty;
         public ImageCategory Category { get; set; } = ImageCategory.None;
 
+        public int SortOrder { get; set; } = 0;
+
         public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
     }
 }
